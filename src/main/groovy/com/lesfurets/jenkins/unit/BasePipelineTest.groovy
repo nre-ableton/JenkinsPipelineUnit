@@ -190,7 +190,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("echo", [String], { String message ->
             println(message)
         })
-        helper.registerAllowedMethod("error", [String], { updateBuildStatus('FAILURE') })
+        helper.registerAllowedMethod("error", [String], {
+            updateBuildStatus('FAILURE')
+            throw new Exception('error raised')
+        })
         helper.registerAllowedMethod('fileExists', [Map], { Map args -> helper.fileExists(args.file) })
         helper.registerAllowedMethod('fileExists', [String], { String arg -> helper.fileExists(arg) })
         helper.registerAllowedMethod("gatlingArchive")

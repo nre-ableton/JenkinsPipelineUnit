@@ -4,6 +4,9 @@ import com.lesfurets.jenkins.unit.BasePipelineTest
 import org.junit.Before
 import org.junit.Test
 
+import static org.assertj.core.api.Assertions.assertThat
+
+
 class TestParallelJob extends BasePipelineTest {
 
     @Override
@@ -13,24 +16,27 @@ class TestParallelJob extends BasePipelineTest {
         super.setUp()
         def scmBranch = "feature_test"
         binding.setVariable('scm', [
-                        $class                           : 'GitSCM',
-                        branches                         : [[name: scmBranch]],
-                        extensions                       : [],
-                        userRemoteConfigs                : [[
-                                                                            credentialsId: 'gitlab_git_ssh',
-                                                                            url          : 'github.com/lesfurets/JenkinsPipelineUnit.git'
-                                                            ]]
+                $class: 'GitSCM',
+                branches: [[name: scmBranch]],
+                extensions: [],
+                userRemoteConfigs: [
+                        [credentialsId: 'gitlab_git_ssh', url: 'github.com/lesfurets/JenkinsPipelineUnit.git'],
+                ]
         ])
     }
 
     @Test
     void should_execute_parallel_with_errors() throws Exception {
         def script = runScript("job/parallelJob.jenkins")
-        try{
+        Exception caughtException = null
+        try {
             script.execute()
+        } catch (Exception exception) {
+            caughtException = exception
         } finally {
             printCallStack()
         }
+        assertThat(caughtException).isNotNull()
         assertJobStatusFailure()
     }
 }
